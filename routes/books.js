@@ -1,28 +1,16 @@
 const router = require('express').Router();
-const { getBootcamps, getBootcamp, createBootcamp, updateBootcamp, deleteBootcamp, getBootcampsByZipcodeAndRadius, bootcampPhotoUpload } = require('../controllers/bootcamp');
-const { advancedResults } = require('../middlewares/advancedResults');
+const { getAllBooks, getBook, updateBook, deleteBook, bookPhotoUpload, createBook } = require('../controllers/books');
 const { protect, authorize } = require('../middlewares/auth');
-const Bootcamps = require('../models/Bootcamps');
-//rerouting /:bootcamps/courses to course router
-const course_router = require('./courses_router');
-router.use('/:bootcampId/courses', course_router);
-//it returns the router again so that we can chain requests
-//using advanced results middleware for that particular path
 router.route('/')
-    .get(advancedResults(Bootcamps, {
-        path: 'courses',
-        select: 'title'
-    }), getBootcamps)
-    .post(protect, authorize('publisher', 'admin'), createBootcamp);
+    .get(protect, getAllBooks)
+    .post(protect, authorize('publisher', 'admin'), createBook);
 
 router.route('/:id')
-    .get(getBootcamp)
-    .put(protect, authorize('publisher', 'admin'), updateBootcamp)
-    .delete(protect, authorize('publisher', 'admin'), deleteBootcamp);
+    .get(protect, getBook)
+    .put(protect, authorize('publisher', 'admin'), updateBook)
+    .delete(protect, authorize('publisher', 'admin'), deleteBook);
 
-router.route('/:id/photo')
-    .put(protect, authorize('publisher', 'admin'), bootcampPhotoUpload);
-
-router.route('/radius/:zipcode/:distance').get(getBootcampsByZipcodeAndRadius);
+router.route('/photo/:id')
+    .put(protect, authorize('publisher', 'admin'), bookPhotoUpload);
 
 module.exports = router;

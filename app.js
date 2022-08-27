@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const auth_router = require('./routes/auth');
+const user_router = require('./routes/users');
+const book_router = require('./routes/books');
 const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 const xssclean = require('xss-clean');
@@ -8,7 +10,7 @@ const ratelimit = require('express-rate-limit');
 const hpp = require('hpp');
 const cors = require('cors');
 //birnging in db
-const { connect_db, connection } = require('./config/db');
+const { connect_db, connection } = require('./db');
 //express file upload for uploading files
 const expressfileupload = require('express-fileupload');
 //requiring custom error handler
@@ -54,6 +56,8 @@ app.use(hpp());
 app.use(cors());
 //mounting router to app
 app.use('/api/v1/auth/', auth_router);
+app.use('/api/v1/users/', user_router);
+app.use('/api/v1/books/', book_router);
 //error handler middleware should be used after router
 //this is universal error handler
 app.use(errorHandler);

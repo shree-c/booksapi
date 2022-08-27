@@ -20,6 +20,16 @@ const BookSchema = mongoose.Schema(
         createdAt: {
             type: Date,
             default: Date.now
+        },
+        description: {
+            type: String
+        },
+        owner: {
+            type: mongoose.Schema.ObjectId,
+            required: [true, 'owner of the book is needed']
+        },
+        photo: {
+            type: String
         }
     },
     {

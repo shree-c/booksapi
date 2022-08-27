@@ -1,7 +1,6 @@
-const Users = require("../models/Users");
+const Users = require("../models/User");
 const async_handler = require("../utils/asynchandler");
 const ErrorResponse = require("../utils/customError");
-const sendEmail = require("../utils/nodemailer");
 const crypto = require('crypto');
 
 // @desc    register a user
@@ -49,119 +48,6 @@ exports.getMe = async_handler(async function (req, res, next) {
             success: true,
             data: req.user
         });
-});
-
-// @desc    user log out
-// @route   GET /api/v1/auth/logout
-// @access  Private
-exports.logOut = async_handler(async function (req, res, next) {
-    //in the tutorial brad has again queried the db with the id from req.user.id set by the protect function
-    //I thought it was unncessary since all the info is available req.user
-    res.cookie('token', 'none', {
-        expires: new Date(Date.now() * 10 * 1000),
-        httpOnly: true
-    });
-    res.status(200)
-        .json({
-            success: true,
-            data: {}
-        });
-});
-
-// @desc    forgot password
-// @route   GET /api/v1/auth/forgotpassword
-// @access  Public
-exports.forgotPassword = async_handler(async function (req, res, next) {
-    const user = await Users.findOne({ email: req.body.email });
-    //check for that user
-    if (!user) {
-        return next(new ErrorResponse('no user with that email', 404));
-    }
-    //get our reset token
-    const resetToken = user.getResetPasswordToken();
-
-    //saving the manuplated user obj into db
-    await user.save({
-        validateBeforeSave: false
-    });
-    //sending the email
-    //1. create reset url
-    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/resetpassword/${resetToken}`;
-    //2. text for sending email
-    const text = `Click on the link to reset your password : ${resetUrl}`;
-    //3. sending email
-    try {
-        await sendEmail({
-            text,
-            subject: 'password reset',
-            to: user.email
-        });
-        res.status(200).json({
-            success: true,
-            data: 'email sent'
-        });
-    } catch (error) {
-        console.log(error);
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpire = undefined;
-        await user.save({ validateBeforeSave: false });
-        return next(new ErrorResponse(`email can't be sent`, 500));
-    }
-});
-
-// @desc    get user info
-// @route   PUT /api/v1/auth/resetpassword/:resetId
-// @access  Public
-exports.resetPassword = async_handler(async function (req, res, next) {
-    const hashedResetToken = crypto.createHash('sha256').update(req.params.resetToken).digest('hex');
-    //if the token is present and time has not expired
-    const user = await Users.findOne({
-        resetPasswordToken: hashedResetToken,
-        resetPasswordExpire: { $gt: Date.now() }
-    });
-    if (!user) {
-        return next(new ErrorResponse(`invalid token`, 404));
-    }
-    user.password = req.body.password;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
-    await user.save({ validateBeforeSave: false });
-    res.status(200).json({ success: true, data: `password has been reset` });
-});
-
-// @desc    update username and email
-// @route   PUT /api/v1/auth/updateDetails
-// @access  Private
-exports.updateDetails = async_handler(async function (req, res, next) {
-    const user = await Users.findByIdAndUpdate(req.user.id, {
-        name: req.body.name,
-        email: req.body.email
-    }, {
-        new: true,
-        runValidators: true,
-    });
-    res.status(200)
-        .json({
-            success: true,
-            data: user
-        });
-});
-
-// @desc    update password
-// @route   PUT /api/v1/auth/updatepassword
-// @access  Private
-exports.updatePassword = async_handler(async function (req, res, next) {
-    //1. querying to get the current password
-    const user = await Users.findById(req.user.id).select('+password');
-    //2. comparing current password with that in db
-    if (!await user.compare(req.body.currentPassword)) {
-        return next(new ErrorResponse(`enter the correct current password`, 401));
-    }
-    //3. setting the new password
-    user.password = req.body.newPassword;
-    //4. updating it in the db
-    await user.save({ validateBeforeSave: false });
-    sendTokenResponse(user, res, 200);
 });
 
 //for sending token response

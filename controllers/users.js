@@ -1,5 +1,5 @@
 //all admin based routes
-const Users = require("../models/Users");
+const Users = require("../models/User");
 const async_handler = require("../utils/asynchandler");
 const ErrorResponse = require("../utils/customError");
 
