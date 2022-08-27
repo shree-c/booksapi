@@ -7,8 +7,12 @@ const ErrorResponse = require("../utils/customError");
 // @route   GET /api/v1/users/
 // @access  Private(admin)
 exports.getAllUsers = async_handler(async function (req, res, next) {
+    const users = await Users.find();
     res.status(200)
-        .json(res.advancedResults);
+        .json({
+            success: true,
+            data: users
+        });
 });
 
 // @desc    get single user
