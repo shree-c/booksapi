@@ -1,4 +1,4 @@
-# Booksapi :books:
+# Booksapi :books
 
 ![release](https://img.shields.io/github/v/release/shree-c/booksapi?include_prerelease)
 
@@ -13,20 +13,27 @@ A simple api to manage and publish books
 - Authentication using jwt tokens or cookies
 - Appropriate Security measures are taken
 
-## Api Documentation :link:
+## Api Documentation :link
+
 - [Postman Documentation](https://documenter.getpostman.com/view/23021392/VUxKSU25)
 
-## Build instructions :hammer:
+## Build instructions :hammer
+
 Clone the repo or download zip file
+
 ```sh
 git clone --depth 1 https://github.com/shree-c/booksapi
 ```
+
 Install node modules
+
 ```sh
 cd booksapi
 npm install
 ```
+
 ### Set environment variables inside config/config.env
+
 | variable | description |
 |-----|------|
 | MONGO_U | _url for your mongodb instance_ |
@@ -37,6 +44,7 @@ npm install
 | FILE\_UPLOAD\_PATH | _path from root of project to upload photos_ |
 
 Start the server :fire:
+
 ```sh
 npm run start
 ```
