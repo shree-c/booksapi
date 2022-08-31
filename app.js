@@ -54,6 +54,10 @@ app.use(limiter);
 app.use(hpp());
 //enable cors
 app.use(cors());
+//documentation route
+app.get('/', (req, res) => {
+    res.redirect('https://documenter.getpostman.com/view/23021392/VUxKSU25');
+});
 //mounting router to app
 app.use('/api/v1/auth/', auth_router);
 app.use('/api/v1/users/', user_router);
